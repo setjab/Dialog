@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dialogiske ferdigheter</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: skyblue;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #text-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            opacity: 0;
+        }
+        .text {
+            font-weight: bold;
+            background: linear-gradient(45deg, red, orange, yellow, green, blue, purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+    <div id="text-container">
+        <div class="text" id="center-text" style="font-size: 4rem;">Dialog</div>
+        <div class="text" id="top-text">Lytte</div>
+        <div class="text" id="left-text">Uttrykke</div>
+        <div class="text" id="right-text">Møte</div>
+        <div class="text" id="bottom-text">Utsette</div>
+    </div>
+
+    <script>
+        const canvas = document.querySelector("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let sun = { x: canvas.width / 2, y: canvas.height / 2, radius: 100 };
+        let balls = [
+            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 50, color: "red", text: "Lytte" },
+            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 50, color: "orange", text: "Uttrykke" },
+            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 50, color: "blue", text: "Møte" },
+            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 50, color: "green", text: "Utsette" },
+            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 80, color: "purple", text: "Dialog" }
+        ];
+
+        function drawSun() {
+            ctx.beginPath();
+            ctx.arc(sun.x, sun.y, sun.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "yellow";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawBall(ball) {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = ball.color;
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.fillStyle = "white";
+            ctx.font = "bold 20px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(ball.text, ball.x, ball.y + 5);
+        }
+
+        let animationTime = 5000;
+        let startTime = null;
+
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            let progress = (timestamp - startTime) / animationTime;
+
+            if (progress > 1) progress = 1;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSun();
+
+            balls.forEach((ball, index) => {
+                let targetX, targetY;
+
+                if (index === 4) { 
+                    targetX = sun.x;
+                    targetY = sun.y;
+                } else {
+                    let angle = (index * Math.PI / 2);
+                    targetX = sun.x + Math.cos(angle) * 150;
+                    targetY = sun.y + Math.sin(angle) * 150;
+                }
+
+                ball.x += (targetX - ball.x) * progress * 0.05;
+                ball.y += (targetY - ball.y) * progress * 0.05;
+                drawBall(ball);
+            });
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                document.getElementById("text-container").style.opacity = "1";
+            }
+        }
+
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
