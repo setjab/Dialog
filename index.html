@@ -3,120 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dialogiske ferdigheter</title>
+    <title>Dialogisk Ferdigheter</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background-color: skyblue;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
         canvas {
-            display: block;
             position: absolute;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
         }
-        #text-container {
+        #circle-container {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            font-family: Arial, sans-serif;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .circle {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
             text-align: center;
             opacity: 0;
+            animation: fadeIn 3s forwards 5s;
         }
-        .text {
-            font-weight: bold;
-            background: linear-gradient(45deg, red, orange, yellow, green, blue, purple);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        #center-circle {
+            width: 100px;
+            height: 100px;
+            font-size: 18px;
+            background-color: yellow;
+            color: black;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <canvas></canvas>
-    <div id="text-container">
-        <div class="text" id="center-text" style="font-size: 4rem;">Dialog</div>
-        <div class="text" id="top-text">Lytte</div>
-        <div class="text" id="left-text">Uttrykke</div>
-        <div class="text" id="right-text">Møte</div>
-        <div class="text" id="bottom-text">Utsette</div>
+    <canvas id="bigbang"></canvas>
+    <div id="circle-container">
+        <div id="center-circle" class="circle">Dialog</div>
+        <div class="circle" style="background-color: red; top: 0; left: 50%;">Lytte</div>
+        <div class="circle" style="background-color: blue; bottom: 0; left: 50%;">Utsette</div>
+        <div class="circle" style="background-color: green; left: 0; top: 50%;">Uttrykke</div>
+        <div class="circle" style="background-color: purple; right: 0; top: 50%;">Møte</div>
     </div>
 
     <script>
-        const canvas = document.querySelector("canvas");
+        const canvas = document.getElementById("bigbang");
         const ctx = canvas.getContext("2d");
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        let sun = { x: canvas.width / 2, y: canvas.height / 2, radius: 100 };
-        let balls = [
-            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 50, color: "red", text: "Lytte" },
-            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 50, color: "orange", text: "Uttrykke" },
-            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 50, color: "blue", text: "Møte" },
-            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 50, color: "green", text: "Utsette" },
-            { x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 80, color: "purple", text: "Dialog" }
-        ];
+        const particles = [];
+        const colors = ["red", "orange", "yellow", "green", "blue", "purple", "white"];
 
-        function drawSun() {
-            ctx.beginPath();
-            ctx.arc(sun.x, sun.y, sun.radius, 0, Math.PI * 2);
-            ctx.fillStyle = "yellow";
-            ctx.fill();
-            ctx.closePath();
-        }
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.radius = Math.random() * 6 + 2;
+                this.color = color;
+                this.speedX = (Math.random() - 0.5) * 2;
+                this.speedY = (Math.random() - 0.5) * 2;
+            }
 
-        function drawBall(ball) {
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-            ctx.fillStyle = ball.color;
-            ctx.fill();
-            ctx.closePath();
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.radius -= 0.02;
+                if (this.radius < 0) this.radius = 0;
+            }
 
-            ctx.fillStyle = "white";
-            ctx.font = "bold 20px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(ball.text, ball.x, ball.y + 5);
-        }
-
-        let animationTime = 5000;
-        let startTime = null;
-
-        function animate(timestamp) {
-            if (!startTime) startTime = timestamp;
-            let progress = (timestamp - startTime) / animationTime;
-
-            if (progress > 1) progress = 1;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawSun();
-
-            balls.forEach((ball, index) => {
-                let targetX, targetY;
-
-                if (index === 4) { 
-                    targetX = sun.x;
-                    targetY = sun.y;
-                } else {
-                    let angle = (index * Math.PI / 2);
-                    targetX = sun.x + Math.cos(angle) * 150;
-                    targetY = sun.y + Math.sin(angle) * 150;
-                }
-
-                ball.x += (targetX - ball.x) * progress * 0.05;
-                ball.y += (targetY - ball.y) * progress * 0.05;
-                drawBall(ball);
-            });
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                document.getElementById("text-container").style.opacity = "1";
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
             }
         }
 
-        requestAnimationFrame(animate);
+        function createBigBang() {
+            for (let i = 0; i < 300; i++) {
+                const x = canvas.width / 2;
+                const y = canvas.height / 2;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((particle, index) => {
+                if (particle.radius <= 0) {
+                    particles[index] = new Particle(canvas.width / 2, canvas.height / 2, particle.color);
+                } else {
+                    particle.update();
+                    particle.draw();
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+
+        createBigBang();
+        animate();
     </script>
 </body>
 </html>
