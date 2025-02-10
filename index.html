@@ -24,21 +24,21 @@
         }
         #circle-container {
             position: absolute;
-            width: 300px;
-            height: 300px;
+            width: 800px;
+            height: 800px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .circle {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 240px;
+            height: 240px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 32px;
             font-weight: bold;
             color: white;
             text-align: center;
@@ -46,9 +46,9 @@
             animation: fadeIn 3s forwards 5s;
         }
         #center-circle {
-            width: 100px;
-            height: 100px;
-            font-size: 18px;
+            width: 320px;
+            height: 320px;
+            font-size: 40px;
             background-color: yellow;
             color: black;
         }
@@ -56,16 +56,20 @@
             0% { opacity: 0; transform: scale(0.5); }
             100% { opacity: 1; transform: scale(1); }
         }
+        @keyframes moveToCircle {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(var(--x), var(--y)); }
+        }
     </style>
 </head>
 <body>
     <canvas id="bigbang"></canvas>
     <div id="circle-container">
         <div id="center-circle" class="circle">Dialog</div>
-        <div class="circle" style="background-color: red; top: 0; left: 50%;">Lytte</div>
-        <div class="circle" style="background-color: blue; bottom: 0; left: 50%;">Utsette</div>
-        <div class="circle" style="background-color: green; left: 0; top: 50%;">Uttrykke</div>
-        <div class="circle" style="background-color: purple; right: 0; top: 50%;">Møte</div>
+        <div class="circle" id="circle-1" style="background-color: red;">Lytte</div>
+        <div class="circle" id="circle-2" style="background-color: blue;">Utsette</div>
+        <div class="circle" id="circle-3" style="background-color: green;">Uttrykke</div>
+        <div class="circle" id="circle-4" style="background-color: purple;">Møte</div>
     </div>
 
     <script>
@@ -124,8 +128,25 @@
             requestAnimationFrame(animate);
         }
 
+        function animateCircles() {
+            const positions = [
+                { x: "0px", y: "-300px" },  // Øverst
+                { x: "0px", y: "300px" },   // Nederst
+                { x: "-300px", y: "0px" },  // Venstre
+                { x: "300px", y: "0px" }    // Høyre
+            ];
+            document.querySelectorAll(".circle").forEach((circle, index) => {
+                if (index === 0) return; // Hopp over midten
+                circle.style.opacity = "1";
+                circle.style.animation = `moveToCircle 3s forwards`;
+                circle.style.setProperty("--x", positions[index - 1].x);
+                circle.style.setProperty("--y", positions[index - 1].y);
+            });
+        }
+
         createBigBang();
         animate();
+        setTimeout(animateCircles, 5000);
     </script>
 </body>
 </html>
